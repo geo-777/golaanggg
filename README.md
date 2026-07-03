@@ -1,0 +1,3 @@
+### ABOUT REPO
+---
+Just toy stuff made to practise some go-lang..............
