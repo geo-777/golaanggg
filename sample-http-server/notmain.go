@@ -23,15 +23,6 @@ var products = []Product{
 	{ID: 2, Name: "Coffee Grinder", Price: 89.50},
 }
 
-// loggingMiddleware logs the incoming request method, path, and duration.
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		next.ServeHTTP(w, r)
-		log.Printf("[%s] %s - took %s", r.Method, r.URL.Path, time.Since(start))
-	})
-}
-
 // getProductsHandler handles GET /products
 func getProductsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -105,15 +96,12 @@ func notmain() {
 	mux.HandleFunc("GET /products/{id}", getProductByIDHandler)
 	mux.HandleFunc("POST /products", createProductHandler)
 
-	// Wrap our router inside our logging middleware
-	wrappedMux := loggingMiddleware(mux)
-
 	// Configure and boot server
 	serverAddr := ":8080"
 	log.Printf("Starting server on %s...", serverAddr)
 	server := &http.Server{
-		Addr:         serverAddr,
-		Handler:      wrappedMux,
+		Addr: serverAddr,
+
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
