@@ -11,6 +11,11 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", rootHandler)
+	mux.HandleFunc("GET /todos", getTodosHandler)
+	mux.HandleFunc("POST /todos", postTodoHandler)
+	mux.HandleFunc("DELETE /todos/{id}", deleteTodoHandler)
+	mux.HandleFunc("PATCH /todos/{id}", patchTodoHandler)
+
 	handler := loggingMiddleware(mux)
 
 	//handle errors

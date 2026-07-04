@@ -11,7 +11,7 @@ const (
 )
 
 type Todo struct {
-	Id        int      `json:"int,omitempty"`
+	Id        int      `json:"id,omitempty"`
 	Task      string   `json:"task"`
 	Completed bool     `json:"completed"`
 	Priority  Priority `json:"priority"`
