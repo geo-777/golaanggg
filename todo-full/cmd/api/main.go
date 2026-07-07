@@ -4,6 +4,7 @@ import (
 	"log"
 	"todo-full/internal/config"
 	"todo-full/internal/database"
+	"todo-full/internal/handlers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,6 +32,7 @@ func main() {
 			"status":  "success",
 		})
 	})
+	router.POST("/todos", handlers.CreateTodoHandler(pool))
 
 	router.Run(":" + cfg.Port)
 }

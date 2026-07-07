@@ -69,3 +69,7 @@ func deleteTodo(id int) bool {
 
 	return false
 }
+
+func getTodoyById(id int) {
+
+}
