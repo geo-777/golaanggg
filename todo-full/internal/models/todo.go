@@ -8,4 +8,5 @@ type Todo struct {
 	Completed bool      `json:"completed" db:"completed"`
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
+	UserID    string    `json:"userId" db:"user_id"`
 }

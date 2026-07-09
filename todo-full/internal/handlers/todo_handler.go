@@ -22,6 +22,13 @@ type UpdateTodoInput struct {
 
 func CreateTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		userIDInterface, exists := ctx.Get("user_id")
+
+		if !exists {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "user_id not found in gin context."})
+		}
+		userId := userIDInterface.(string)
+
 		var input CreateTodoInput
 
 		if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -29,7 +36,7 @@ func CreateTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 
 			return
 		}
-		todo, err := repository.CreateTodo(pool, input.Title, input.Completed)
+		todo, err := repository.CreateTodo(pool, input.Title, input.Completed, userId)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 			return
@@ -39,8 +46,15 @@ func CreateTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 }
 
 func GetAllTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
+
 	return func(ctx *gin.Context) {
-		todo, err := repository.GetAllTodos(pool)
+		userIDInterface, exists := ctx.Get("user_id")
+
+		if !exists {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "user_id not found in gin context."})
+		}
+		userId := userIDInterface.(string)
+		todo, err := repository.GetAllTodos(pool, userId)
 
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -53,6 +67,13 @@ func GetAllTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 
 func UpdateTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		userIDInterface, exists := ctx.Get("user_id")
+
+		if !exists {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "user_id not found in gin context."})
+		}
+		userId := userIDInterface.(string)
+
 		idStr := ctx.Param("id")
 		id, err := strconv.Atoi(idStr)
 
@@ -75,7 +96,7 @@ func UpdateTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 			completed = *input.Completed
 		}
 
-		todo, err := repository.UpdateTodo(pool, id, input.Title, completed)
+		todo, err := repository.UpdateTodo(pool, id, input.Title, completed, userId)
 		if err != nil {
 			if err == pgx.ErrNoRows {
 				ctx.JSON(http.StatusNotFound, gin.H{"Error": "Todo not found"})
@@ -91,6 +112,13 @@ func UpdateTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 
 func DeleteTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		userIDInterface, exists := ctx.Get("user_id")
+
+		if !exists {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "user_id not found in gin context."})
+		}
+		userId := userIDInterface.(string)
+
 		idStr := ctx.Param("id")
 
 		id, err := strconv.Atoi(idStr)
@@ -99,7 +127,7 @@ func DeleteTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 			ctx.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid param "})
 			return
 		}
-		err = repository.DeleteTodo(pool, id)
+		err = repository.DeleteTodo(pool, id, userId)
 
 		if err != nil {
 			if err.Error() == "Todo was not found" {

@@ -5,6 +5,7 @@ import (
 	"todo-full/internal/config"
 	"todo-full/internal/database"
 	"todo-full/internal/handlers"
+	"todo-full/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,14 +33,17 @@ func main() {
 			"status":  "success",
 		})
 	})
-	router.POST("/todos", handlers.CreateTodoHandler(pool))
-	router.GET("/todos", handlers.GetAllTodoHandler(pool))
-
-	router.PUT("/todos/:id", handlers.UpdateTodoHandler(pool))
-	router.DELETE("/todos/:id", handlers.DeleteTodoHandler(pool))
 
 	router.POST("/auth/register", handlers.CreateUserHandler(pool))
 	router.POST("/auth/login", handlers.LoginHandler(pool, cfg))
 
+	protected := router.Group("/todos")
+	protected.Use(middleware.AuthMiddleware(cfg))
+	{
+		protected.POST("/", handlers.CreateTodoHandler(pool))
+		protected.GET("/", handlers.GetAllTodoHandler(pool))
+		protected.PUT("//:id", handlers.UpdateTodoHandler(pool))
+		protected.DELETE("//:id", handlers.DeleteTodoHandler(pool))
+	}
 	router.Run(":" + cfg.Port)
 }
